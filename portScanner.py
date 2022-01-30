@@ -2,51 +2,76 @@
 
 import sys
 import socket
-import datetime
+from datetime import datetime
 
-help="""---------------- PORT SCAN ---------------
-	python3 portScanner.py <ip> -s <startport> -e <endport>
-	"""
+start_time = datetime.now()
 
 if len(sys.argv) != 6:
-	print(help)
-	sys.exit(0)
+    print("python3 portScanner.py <ip> -s <startport> -e <endport>")
+    sys.exit(0)
+
+
+def scan(ip_address, port_number):
+    if not ip_address:
+        return 0
+
+    if not port_number:
+        return 0
+
+    tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket.setdefaulttimeout(1)  # Timeout in seconds
+    result = tcp.connect_ex((ip_address, port_number))  # returns an error indicator => 0:success, 1:error
+    tcp.close()
+
+    if result == 0:
+        return 1
+    else:
+        return 0
+
 
 try:
 
-    target = socket.gethostbyname(sys.argv[1].strip())
-    startport = int(sys.argv[sys.argv.index('-s')+1].strip())
-    endport = int(sys.argv[sys.argv.index('-e')+1].strip())
-    
-    if (startport < endport):
-      print("Invalid amount of arguments!")
+    target = sys.argv[1]
+    if not target:
+        print("Invalid target!")
+        sys.exit()
 
-    # adding a basic banner
-    print("-" * 20)
-    print("Scanning target: " + target)
-    print("Time started: " + str(datetime.datetime.now()))
-    print("-" * 20) 
-  
-    for port in range(startport, endport:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #specifying the address family and socket type
-        socket.setdefaulttimeout(1)
-        result = s.connect_ex((target, port)) # returns an error indicator => 0:success, 1:error
-    
-        if (result == 0):
+    startport = sys.argv[sys.argv.index('-s') + 1]
+    if not startport:
+        print("Invalid startport!")
+        sys.exit()
+
+    endport = sys.argv[sys.argv.index('-e') + 1]
+    if not endport:
+        print("Invalid endport!")
+        sys.exit()
+
+    target = socket.gethostbyname(target.strip())
+    startport = int(startport.strip())
+    endport = int(endport.strip())
+
+    if startport < 1 or endport < 1 or startport > endport:
+        print("Invalid port arguments!")
+        sys.exit()
+
+    for port in range(startport, endport):
+        if scan(target, port):
             print(f"Port {port} open")
-        else:
-            print(f"Port {port} closed")
-            
-        s.close()    #close the connection
-    
+
 except KeyboardInterrupt:
-    print("\nExiting...")
+    print("\nExiting... Keyboard Error")
     sys.exit()
-    
+except IndexError:
+    print("\nExiting... Index Error")
+    sys.exit()
 except socket.gaierror:
     print("The hostname couldn't be resolved.")
     sys.exit()
-    
 except socket.error:
     print("Couldn't connect to the server.")
-    sys.exit()   
+    sys.exit()
+
+end_time = datetime.now()
+total_time = end_time - start_time
+
+print("Total time: ", total_time)
