@@ -16,11 +16,10 @@ Open terminal and run following commands
 >> chmod 755 ./portScanner.py
 ```
 ```
->> ./portScanner.py -r
+>> python3 portScanner.py 192.168.1.10 -s 1 -e 255
 ```
 
-## Run command
-Options -s startport and -e endport
+## Simple Options
 ```
->> python3 portScanner.py 192.168.1.10 -s 1 -e 255
+>> python3 portScanner.py <ip> -s <startport> and -e <endport>
 ```
